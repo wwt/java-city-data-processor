@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+}
+
+group 'com.wwt'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation('org.apache.commons:commons-csv:1.8')
+
+    testImplementation(platform('org.junit:junit-bom:5.7.0'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation('org.assertj:assertj-core:3.18.1')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        //noinspection GrUnresolvedAccess
+        events "passed", "skipped", "failed"
+    }
+}
