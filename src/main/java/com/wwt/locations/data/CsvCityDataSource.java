@@ -38,27 +38,29 @@ public class CsvCityDataSource implements CityDataSource {
 
     private CsvCityDataSource load() throws IOException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(csvInputStream);
-             BufferedReader reader = new BufferedReader(inputStreamReader);
-             CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)) {
-            this.cities = readCities(csvParser);
+             BufferedReader reader = new BufferedReader(inputStreamReader)) {
+            this.cities = readCities(CSVFormat.DEFAULT.builder()
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .build().parse(reader));
         }
         return this;
     }
 
     private Set<City> readCities(CSVParser csvParser) throws IOException {
         return csvParser.getRecords().stream()
-                .map(recordToCity)
+                .map(rowToCity)
                 .collect(toUnmodifiableSet());
     }
 
-    private final Function<CSVRecord, City> recordToCity = record -> {
+    private final Function<CSVRecord, City> rowToCity = row -> {
         City city = new City();
-        city.setId(record.get("id"));
-        city.setName(record.get("city_ascii"));
-        city.setLocation(new Coordinate(parseDouble(record.get("lat")), parseDouble(record.get("lng"))));
-        city.setTimeZoneId(ZoneId.of(record.get("timezone")));
-        city.setPopulation((int) Double.parseDouble(record.get("population")));
-        city.setState(new State(record.get("state_name"), record.get("state_id")));
+        city.setId(row.get("id"));
+        city.setName(row.get("city_ascii"));
+        city.setLocation(new Coordinate(parseDouble(row.get("lat")), parseDouble(row.get("lng"))));
+        city.setTimeZoneId(ZoneId.of(row.get("timezone")));
+        city.setPopulation((int) Double.parseDouble(row.get("population")));
+        city.setState(new State(row.get("state_name"), row.get("state_id")));
         return city;
     };
 }
